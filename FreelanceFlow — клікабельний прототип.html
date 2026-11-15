@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FreelanceFlow — клікабельний прототип</title>
+<style>
+:root{--bg:#f4f6f9;--sf:#fff;--tx:#1b2430;--mu:#667085;--br:#d9dee7;--pr:#1f6feb;--prt:#fff;--ok:#1a7f4b;--er:#c0362c;--col:#eaeef4;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--sf:#1b222c;--tx:#e8ecf2;--mu:#98a2b3;--br:#323c4a;--pr:#4c8dff;--prt:#0b1220;--ok:#4cc38a;--er:#ff7b72;--col:#161c25;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12161c;--sf:#1b222c;--tx:#e8ecf2;--mu:#98a2b3;--br:#323c4a;--pr:#4c8dff;--prt:#0b1220;--ok:#4cc38a;--er:#ff7b72;--col:#161c25;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 Arial,Helvetica,sans-serif}
+header{background:var(--sf);border-bottom:1px solid var(--br);padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header b{margin-right:12px}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+button,select,input{font:inherit;color:var(--tx)}
+.nb,.btn{border:1px solid var(--br);background:var(--sf);border-radius:8px;padding:6px 12px;cursor:pointer}
+.nb.on,.btn.pr{background:var(--pr);color:var(--prt);border-color:var(--pr)}
+main{max-width:980px;margin:0 auto;padding:16px}
+.card{background:var(--sf);border:1px solid var(--br);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{margin:0 0 10px;font-size:20px}
+label{display:block;font-size:13px;color:var(--mu);margin:8px 0 3px}
+input,select{width:100%;padding:8px;border:1px solid var(--br);border-radius:8px;background:var(--bg)}
+.err{color:var(--er);font-size:13px;min-height:18px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+.muted{color:var(--mu);font-size:13px}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.board{grid-template-columns:1fr}}
+.col{background:var(--col);border-radius:12px;padding:10px;min-height:160px}
+.col h3{margin:0 0 8px;font-size:14px}
+.tk{background:var(--sf);border:1px solid var(--br);border-radius:10px;padding:10px;margin-bottom:8px;cursor:grab}
+.tk.run{border-color:var(--ok)}
+.tm{font-variant-numeric:tabular-nums;color:var(--ok);font-weight:bold}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:7px;border-bottom:1px solid var(--br);font-size:14px}
+.wrap{overflow-x:auto}
+.tot{font-size:18px;font-weight:bold;margin-top:10px}
+.hint{background:var(--col);border-radius:8px;padding:8px;font-size:13px;margin-top:8px}
+.scr{display:none}.scr.on{display:block}
+</style>
+</head>
+<body>
+<header><b>FreelanceFlow</b>
+<nav id="nav" hidden>
+<button class="nb" data-s="projects">Проєкти</button>
+<button class="nb" data-s="board">Дошка</button>
+<button class="nb" data-s="report">Звіт</button>
+<button class="nb" data-s="login">Вийти</button>
+</nav></header>
+<main>
+
+<section class="scr on" id="login">
+<div class="card" style="max-width:420px;margin:30px auto">
+<h2>Вхід / реєстрація</h2>
+<label>Email</label><input id="em" type="text" placeholder="name@example.com">
+<label>Пароль (мінімум 8 символів)</label><input id="pw" type="password">
+<div class="err" id="lerr"></div>
+<div class="row"><button class="btn pr" id="reg">Зареєструватися</button><button class="btn" id="log">Увійти</button></div>
+<div class="hint">US-01 · Спробуйте пароль із 7 символів — буде помилка. Після успішної реєстрації відбувається автоматичний вхід.</div>
+</div></section>
+
+<section class="scr" id="projects">
+<div class="card"><h2>Мої проєкти</h2><div class="wrap"><table><thead><tr><th>Проєкт</th><th>Клієнт</th><th>Ставка</th><th></th></tr></thead><tbody id="plist"></tbody></table></div></div>
+<div class="card"><h2>Новий проєкт</h2>
+<div class="row"><div><label>Назва проєкту *</label><input id="pn"></div><div><label>Клієнт *</label><input id="pc"></div></div>
+<div class="row"><div><label>Погодинна ставка</label><input id="pr" type="number" min="0" step="1"></div><div><label>Валюта</label><select id="pcur"><option>UAH</option><option>USD</option><option>EUR</option></select></div></div>
+<div class="err" id="perr"></div><button class="btn pr" id="padd">Створити проєкт</button>
+<div class="hint">US-02, US-08 · Обов’язкові: назва і клієнт. Ставка — додатне число. Якщо ставку не задано, у списку з’явиться підказка.</div></div>
+</section>
+
+<section class="scr" id="board">
+<div class="card row"><div><label>Проєкт</label><select id="bp"></select></div>
+<div><label>Нова задача</label><input id="nt" placeholder="Назва задачі"></div>
+<div style="flex:0 0 auto;align-self:end"><button class="btn pr" id="ntb">Додати</button></div></div>
+<div class="board" id="bd"></div>
+<div class="hint">US-03, US-04 · Перетягуйте картки між колонками. Одночасно працює лише один таймер: запуск іншого автоматично зупиняє перший.</div>
+</section>
+
+<section class="scr" id="report">
+<div class="card"><h2>Звіт про витрачений час</h2>
+<div class="row"><div><label>Від</label><input type="date" id="rf" value="2026-11-01"></div><div><label>До</label><input type="date" id="rt" value="2026-11-30"></div>
+<div><label>Проєкт</label><select id="rp"></select></div></div>
+<div class="wrap"><table><thead><tr><th>Дата</th><th>Проєкт</th><th>Задача</th><th>Тривалість</th></tr></thead><tbody id="rl"></tbody></table></div>
+<div class="tot" id="rtot"></div></div>
+<div class="card"><h2>Додати запис вручну</h2>
+<div class="row"><div><label>Дата</label><input type="date" id="md" value="2026-11-15"></div><div><label>Тривалість, хв</label><input type="number" id="mm"></div>
+<div><label>Задача</label><select id="mt"></select></div></div>
+<div class="err" id="merr"></div><button class="btn" id="madd">Додати запис</button>
+<div class="hint">US-05, US-06 · Тривалість: від 1 до 1440 хвилин. Зміна одразу відображається у звіті.</div></div>
+</section>
+</main>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+var projects=[{id:1,name:"Сайт для кав’ярні",client:"Кава&Ко",rate:600,cur:"UAH"},{id:2,name:"Мобільний застосунок",client:"FitStart",rate:25,cur:"USD"}];
+var tasks=[{id:1,t:"Макет головної сторінки",p:1,col:"done"},{id:2,t:"Верстка меню",p:1,col:"doing"},{id:3,t:"Інтеграція оплати",p:1,col:"todo"},{id:4,t:"Екран онбордингу",p:2,col:"todo"}];
+var entries=[{d:"2026-11-03",p:1,t:"Макет головної сторінки",m:150},{d:"2026-11-05",p:1,t:"Макет головної сторінки",m:90},{d:"2026-11-09",p:2,t:"Екран онбордингу",m:75}];
+var run=null,sec=0,tick=null,nid=10;
+function fmt(m){return Math.floor(m/60)+":"+("0"+(m%60)).slice(-2)}
+function pn(id){var x=projects.filter(function(p){return p.id==id})[0];return x?x.name:"—"}
+function show(s){document.querySelectorAll(".scr").forEach(function(e){e.classList.toggle("on",e.id==s)});
+document.querySelectorAll(".nb").forEach(function(b){b.classList.toggle("on",b.dataset.s==s)});
+$("nav").hidden=(s=="login");
+if(s=="projects")rp();if(s=="board")rb();if(s=="report")rr()}
+function enter(){show("projects")}
+function chk(){var e=$("em").value.trim(),p=$("pw").value;
+if(!e||e.indexOf("@")<1){$("lerr").textContent="Вкажіть коректний email.";return false}
+if(p.length<8){$("lerr").textContent="Пароль має містити щонайменше 8 символів.";return false}
+$("lerr").textContent="";return true}
+$("reg").onclick=function(){if(chk())enter()};
+$("log").onclick=function(){if(chk())enter();};
+document.querySelectorAll(".nb").forEach(function(b){b.onclick=function(){show(b.dataset.s)}});
+function rp(){$("plist").innerHTML=projects.map(function(p){
+return "<tr><td>"+p.name+"</td><td>"+p.client+"</td><td>"+(p.rate?p.rate+" "+p.cur+"/год":"<span class='muted'>Ставку не задано — вкажіть її в налаштуваннях</span>")+"</td><td><button class='btn' data-a='"+p.id+"'>Архівувати</button></td></tr>"}).join("");
+document.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){projects=projects.filter(function(p){return p.id!=b.dataset.a});rp()}})}
+$("padd").onclick=function(){var n=$("pn").value.trim(),c=$("pc").value.trim(),r=$("pr").value;
+if(!n||!c){$("perr").textContent="Назва проєкту та клієнт — обов’язкові поля.";return}
+if(r!==""&&+r<=0){$("perr").textContent="Ставка має бути додатним числом.";return}
+$("perr").textContent="";projects.push({id:nid++,name:n,client:c,rate:r===""?0:+r,cur:$("pcur").value});
+$("pn").value=$("pc").value=$("pr").value="";rp()};
+function opts(sel,all){$(sel).innerHTML=(all?"<option value=''>Усі проєкти</option>":"")+projects.map(function(p){return "<option value='"+p.id+"'>"+p.name+"</option>"}).join("")}
+var cols=[["todo","To Do"],["doing","In Progress"],["done","Done"]];
+function rb(){var cur=$("bp").value;opts("bp");if(cur)$("bp").value=cur;var pid=$("bp").value;
+$("bd").innerHTML=cols.map(function(c){return "<div class='col' data-c='"+c[0]+"'><h3>"+c[1]+"</h3>"+
+tasks.filter(function(t){return t.col==c[0]&&t.p==pid}).map(function(t){var on=run==t.id;
+return "<div class='tk"+(on?" run":"")+"' draggable='true' data-t='"+t.id+"'><div>"+t.t+"</div><div class='muted'>Дедлайн: 20.11.2026</div><div style='margin-top:6px;display:flex;gap:8px;align-items:center'><button class='btn' data-tm='"+t.id+"'>"+(on?"Стоп":"Старт")+"</button><span class='tm' id='tt"+t.id+"'>"+(on?clock():"")+"</span></div></div>"}).join("")+"</div>"}).join("");
+document.querySelectorAll(".tk").forEach(function(e){e.ondragstart=function(ev){ev.dataTransfer.setData("t",e.dataset.t)}});
+document.querySelectorAll(".col").forEach(function(c){c.ondragover=function(ev){ev.preventDefault()};c.ondrop=function(ev){ev.preventDefault();var id=ev.dataTransfer.getData("t");tasks.forEach(function(t){if(t.id==id)t.col=c.dataset.c});rb()}});
+document.querySelectorAll("[data-tm]").forEach(function(b){b.onclick=function(){timer(+b.dataset.tm)}})}
+function clock(){return ("0"+Math.floor(sec/60)).slice(-2)+":"+("0"+sec%60).slice(-2)}
+function stop(){if(run==null)return;var t=tasks.filter(function(x){return x.id==run})[0];
+entries.push({d:"2026-11-15",p:t.p,t:t.t,m:Math.max(1,Math.round(sec/60))});clearInterval(tick);run=null;sec=0}
+function timer(id){var same=run==id;stop();if(!same){run=id;sec=0;tick=setInterval(function(){sec++;var e=$("tt"+run);if(e)e.textContent=clock()},1000)}rb()}
+$("ntb").onclick=function(){var v=$("nt").value.trim();if(!v)return;tasks.push({id:nid++,t:v,p:+$("bp").value,col:"todo"});$("nt").value="";rb()};
+$("bp").onchange=rb;
+function rr(){var cp=$("rp").value;opts("rp",true);$("rp").value=cp;opts("mt");
+var f=$("rf").value,t=$("rt").value,p=$("rp").value;
+var l=entries.filter(function(e){return(!f||e.d>=f)&&(!t||e.d<=t)&&(!p||e.p==p)});
+$("rl").innerHTML=l.map(function(e){var d=e.d.split("-");return "<tr><td>"+d[2]+"."+d[1]+"."+d[0]+"</td><td>"+pn(e.p)+"</td><td>"+e.t+"</td><td>"+fmt(e.m)+"</td></tr>"}).join("")||"<tr><td colspan='4' class='muted'>Записів немає</td></tr>";
+$("rtot").textContent="Сумарний час: "+fmt(l.reduce(function(a,e){return a+e.m},0))+" год:хв"}
+["rf","rt","rp"].forEach(function(i){$(i).onchange=rr});
+$("madd").onclick=function(){var m=+$("mm").value;if(!(m>=1&&m<=1440)){$("merr").textContent="Тривалість має бути від 1 до 1440 хвилин.";return}
+var task=tasks.filter(function(x){return x.p==$("mt").value})[0];$("merr").textContent="";
+entries.push({d:$("md").value,p:+$("mt").value,t:task?task.t:"Ручний запис",m:m});$("mm").value="";rr()};
+</script>
+</body>
+</html>
